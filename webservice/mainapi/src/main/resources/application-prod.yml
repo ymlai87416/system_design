@@ -1,0 +1,20 @@
+spring:
+  cloud:
+    zookeeper:
+      connect-string: zookeeper:2181
+      discovery:
+        root: /testapp
+        enabled: true
+      dependencies:
+        readApi:
+          path: /readapi
+          loadBalancerType: ROUND_ROBIN
+          version: v1
+          required: false
+        writeApi:
+          path: /writeapi
+          loadBalancerType: ROUND_ROBIN
+          version: v1
+          required: false
+server:
+  port: 8080

@@ -1,0 +1,20 @@
+spring:
+  cloud:
+    zookeeper:
+      connect-string: localhost:22181
+      discovery:
+        enabled: true
+        register: true
+        root: /testapp
+        prefer-ip-address: true
+  kafka:
+    producer:
+      bootstrap-servers: 127.0.0.1:29092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      group-id: group_id
+  redis:
+    host: localhost
+    port: 6379
+server:
+  port: 8281

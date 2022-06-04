@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: writeapi
+  profiles:
+    active: prod
+
+logging:
+  level:
+    org.apache.zookeeper.ClientCnxn: WARN
+topic:
+  name:
+    producer: testapp-wordcount
+auto:
+  create:
+    topics:
+      enable: true

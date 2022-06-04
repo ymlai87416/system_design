@@ -1,0 +1,11 @@
+spring:
+  cloud:
+    zookeeper:
+      connect-string: zookeeper:2181
+      discovery:
+        enabled: true
+        register: true
+        root: /testapp
+        prefer-ip-address: true
+server:
+  port: 8090

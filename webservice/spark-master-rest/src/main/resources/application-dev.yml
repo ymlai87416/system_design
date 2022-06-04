@@ -1,0 +1,11 @@
+spring:
+  cloud:
+    zookeeper:
+      connect-string: localhost:22181
+      discovery:
+        enabled: true
+        register: true
+        root: /testapp
+        prefer-ip-address: true
+server:
+  port: 8284

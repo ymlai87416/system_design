@@ -1,0 +1,20 @@
+spring:
+  cloud:
+    zookeeper:
+      connect-string: zookeeper:2181
+      discovery:
+        enabled: true
+        register: true
+        root: /testapp
+        prefer-ip-address: true
+  kafka:
+    producer:
+      bootstrap-servers: kafka:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      group-id: group_id
+  redis:
+    host: redis
+    port: 6379
+server:
+  port: 8080

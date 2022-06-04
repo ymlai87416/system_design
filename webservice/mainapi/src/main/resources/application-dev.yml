@@ -1,0 +1,20 @@
+spring:
+  cloud:
+    zookeeper:
+      connect-string: localhost:22181
+      discovery:
+        root: /testapp
+        enabled: true
+      dependencies:
+        readApi:
+          path: /readapi
+          loadBalancerType: ROUND_ROBIN
+          version: v1
+          required: true
+        writeApi:
+          path: /writeapi
+          loadBalancerType: ROUND_ROBIN
+          version: v1
+          required: true
+server:
+  port: 8282
