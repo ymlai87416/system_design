@@ -1,0 +1,200 @@
+version: '3.7'
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - 22181:2181
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    ports:
+      - 29092:29092
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'db'
+      # So you don't have to use root, but you can if you like
+      MYSQL_USER: 'user'
+      # You can use whatever password you like
+      MYSQL_PASSWORD: 'password'
+      # Password for root access
+      MYSQL_ROOT_PASSWORD: 'password'
+    ports:
+      # <Port exposed> : < MySQL Port running inside container>
+      - '3306:3306'
+    expose:
+      # Opens port 3306 on the container
+      - '3306'
+      # Where our data will be persisted
+    volumes:
+      - my-db:/var/lib/mysql
+  redis:
+    image: 'redis:latest'
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - '6379:6379'
+    expose:
+      - '6379'
+    volumes:
+      - redis-data:/data
+  minio1:
+    image: minio/minio:RELEASE.2020-04-15T19-42-18Z
+    volumes:
+      - data1-1:/data1
+      - data1-2:/data2
+    ports:
+      - "9001:9000"
+    environment:
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio123
+    command: server http://minio{1...4}/data{1...2}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  minio2:
+    image: minio/minio:RELEASE.2020-04-15T19-42-18Z
+    volumes:
+      - data2-1:/data1
+      - data2-2:/data2
+    ports:
+      - "9002:9000"
+    environment:
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio123
+    command: server http://minio{1...4}/data{1...2}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  minio3:
+    image: minio/minio:RELEASE.2020-04-15T19-42-18Z
+    volumes:
+      - data3-1:/data1
+      - data3-2:/data2
+    ports:
+      - "9003:9000"
+    environment:
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio123
+    command: server http://minio{1...4}/data{1...2}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  minio4:
+    image: minio/minio:RELEASE.2020-04-15T19-42-18Z
+    volumes:
+      - data4-1:/data1
+      - data4-2:/data2
+    ports:
+      - "9004:9000"
+    environment:
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio123
+    command: server http://minio{1...4}/data{1...2}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  spark-master:
+    image: ymlai87416/sd-spark-master:3.2.0-hadoop3.2
+    container_name: spark-master
+    ports:
+      - "8080:8080"
+      - "7077:7077"
+    environment:
+      - INIT_DAEMON_STEP=setup_spark
+    links:
+      - minio1
+      - minio2
+      - minio3
+      - minio4
+      - db
+  spark-worker-1:
+    image: ymlai87416/sd-spark-worker:3.2.0-hadoop3.2
+    container_name: spark-worker-1
+    depends_on:
+      - spark-master
+    links:
+      - db
+    ports:
+      - "8081:8081"
+    environment:
+      - "SPARK_MASTER=spark://spark-master:7077"
+      
+  minio-mc:
+    image: minio/mc:RELEASE.2020-04-19T19-17-53Z
+    container_name: cas001-minio-mc
+    environment:
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio123
+    links:
+      - minio1:S3_server
+    entrypoint: /bin/sh
+    tty: true
+
+  read-api:
+    image: ymlai87416/sd-read-api:1.0
+    container_name: read-api
+    depends_on:
+      - zookeeper
+      - db
+      - redis
+  write-api:
+    image: ymlai87416/sd-write-api:1.0
+    container_name: write-api
+    depends_on:
+      - zookeeper
+      - db
+      - redis
+  main-api:
+    image: ymlai87416/sd-main-api:1.0
+    container_name: main-api
+    depends_on:
+      - zookeeper
+    ports:
+      - 8280:8080
+  kafka-consumer:
+    image: ymlai87416/sd-kafka-consumer:1.0
+    container_name: kafka-consumer
+    depends_on:
+      - spark-master
+      - zookeeper
+      - kafka
+
+
+## By default this config uses default local driver,
+## For custom volumes replace with volume driver configuration.
+volumes:
+  data1-1:
+  data1-2:
+  data2-1:
+  data2-2:
+  data3-1:
+  data3-2:
+  data4-1:
+  data4-2:
+  my-db:
+  redis-data:

@@ -1,0 +1,33 @@
+read-api:
+    image: ymlai87416/readapi
+    container_name: read-api
+    depends_on:
+      - zookeeper
+      - db
+      - redis
+    environment:
+      DB_HOST: db
+      REDIS_HOST: redis
+      ZOOKEEPER_HOST: zookeeper
+  write-api:
+    image: ymlai87416/writeapi
+    container_name: write-api
+    depends_on:
+      - zookeeper
+      - db
+      - spark-master
+    environment:
+      DB_HOST: db
+      ZOOKEEPER_HOST: zookeeper
+      SPARK_MASTER_HOST: spark-master
+  main-api:
+    image: ymlai87416/mainapi
+    container_name: main-api
+    depends_on:
+      - read-api
+      - write-api
+      - zookeeper
+    environment:
+      ZOOKEEPER_HOST: zookeeper
+    ports:
+      - 8280:8080
