@@ -1,0 +1,12 @@
+spring:
+  profiles:
+    active: prod
+
+topic:
+  name:
+    consumer: testapp-wordcount
+
+auto:
+  create:
+    topics:
+      enable: true
