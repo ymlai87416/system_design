@@ -127,6 +127,9 @@ services:
       - "8090:8090"
     environment:
       - INIT_DAEMON_STEP=setup_spark
+      - MINIO_URL=http://minio1:9000
+      - MINIO_ACCESS=minio
+      - MINIO_SECRET=minio123
     links:
       - minio1
       - minio2
