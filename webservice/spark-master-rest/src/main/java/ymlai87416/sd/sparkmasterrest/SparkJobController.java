@@ -84,12 +84,12 @@ public class SparkJobController {
                 minioClient.uploadObject(
                         UploadObjectArgs.builder()
                                 .bucket("testapp")
-                                .object("/tmp"+filename)
-                                .filename(filename)
+                                .object(filename)
+                                .filename("/tmp"+filename)
                                 .build());
                 logger.info(
-                        "'%s' is successfully uploaded as "
-                                + "object '%s' to bucket '%s'.\n", filename, "input.txt", "testapp");
+                        String.format("'%s' is successfully uploaded as "
+                                + "object '%s' to bucket '%s'.\n", filename, "input.txt", "testapp"));
 
                 //delete
                 File tempFile = new File("/tmp" + filename);
@@ -108,6 +108,7 @@ public class SparkJobController {
     }
 
     private void triggerWordCountJob(int userid, String s3path){
+        logger.info(String.format("Triggering job %d, %s", userid, s3path));
 
         final String[] appArgs = new String[]{
                 String.valueOf(userid),
@@ -125,7 +126,7 @@ public class SparkJobController {
                 .setSparkHome(sparkHome)
                 .setAppResource(appResource)    // "/my/app.jar"
                 .setMainClass(mainClass)        // "my.spark.app.Main"
-                .setMaster("spark://localhost:7077")
+                .setMaster("spark://spark-master:7077")
                 .addJar(jdbcJar)
                 .addJar(appResource)
                 .addAppArgs(appArgs);
