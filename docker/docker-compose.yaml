@@ -8,8 +8,8 @@ services:
     ports:
       - 22181:2181
     volumes:
-      - zk-data: /var/lib/zookeeper/data
-      - zk-log: /var/lib/zookeeper/log
+      - zk-data:/var/lib/zookeeper/data
+      - zk-log:/var/lib/zookeeper/log
   kafka:
     image: confluentinc/cp-kafka:latest
     depends_on:
@@ -24,7 +24,7 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     volumes:
-      - kafka-data: /var/lib/kafka/data
+      - kafka-data:/var/lib/kafka/data
   db:
     image: mysql:5.7
     restart: always
