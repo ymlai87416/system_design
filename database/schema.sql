@@ -29,6 +29,13 @@ create table word_count(
     primary key (user_id, word)
 );
 
+create table word_count_stage(
+  user_id integer,
+  word  varchar(255) not null,
+  count integer not null,
+  batch_id varchar(255) not null
+)
+
 insert into user (name, email, password) values ( "Test", "test@123.com", "password");
 
 insert into message ( body, user_id) values ("Preserved defective offending he daughters on or. Rejoiced prospect yet material servants out answered men admitted. Sportsmen certainty prevailed suspected am as. Add stairs admire all answer the nearer yet length. Advantages prosperous remarkably my inhabiting so reasonably be if. Too any appearance announcing impossible one. Out mrs means heart ham tears shall power every.", 1);
@@ -39,4 +46,8 @@ insert into word_count (user_id, word, count) values (1, 'cloud', 10);
 insert into word_count (user_id, word, count) values (1, 'apple', 12);
 insert into word_count (user_id, word, count) values (1, 'tree', 15);
 insert into word_count (user_id, word, count) values (1, 'cat', 20);
+
+insert into word_count_stage (user_id, word, count) values (1, 'tree', 1);
+insert into word_count_stage (user_id, word, count) values (1, 'tom', 2);
+
 

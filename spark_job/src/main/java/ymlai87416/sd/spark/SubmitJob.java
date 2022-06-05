@@ -9,6 +9,7 @@ public class SubmitJob {
         String appResource = "/jobs/job.jar";
         String mainClass = "ymlai87416.sd.spark.WordCount";
         String sparkHome = "/spark";
+        String jdbcJar = "/jobs/mysql-connector-java.jar";
 
         final String[] appArgs = new String[]{
                 "1",
@@ -23,16 +24,13 @@ public class SubmitJob {
                 .setAppResource(appResource)    // "/my/app.jar"
                 .setMainClass(mainClass)        // "my.spark.app.Main"
                 .setMaster("spark://spark-master:7077")
-                .setConf("spark.delta.logStore.class", "org.apache.spark.sql.delta.storage.S3SingleDriverLogStore")
-                .setConf("spark.hadoop.fs.s3a.endpoint", "http://minio1:9000")
-                .setConf("spark.hadoop.fs.s3a.access.key", "minio")
-                .setConf("spark.hadoop.fs.s3a.secret.key", "minio123")
-                .setConf("spark.hadoop.fs.s3a.path.style.access", "true")
-                .setConf("spark.hadoop.fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem")
+                .addJar(jdbcJar)
+                .addJar(appResource)
                 .addAppArgs(appArgs);
 
         Process proc = spark.launch();
-
-        proc.waitFor();
+        new Thread(new ISRRunnable(proc.getErrorStream())).start();
+        int exitCode = proc.waitFor();
+        System.out.format("Finished! Exit code is %d\n" , exitCode);
     }
 }

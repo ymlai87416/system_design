@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import javax.xml.bind.DatatypeConverter;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -51,9 +53,10 @@ public class SparkJobController {
             //now save it in tmp folder
             //write
             try {
-                FileWriter myWriter = new FileWriter(filename, StandardCharsets.UTF_8);
-                myWriter.write(input);
-                myWriter.close();
+                FileOutputStream outputStream = new FileOutputStream("/tmp" + filename);
+                byte[] strToBytes = input.getBytes();
+                outputStream.write(strToBytes);
+                outputStream.close();
             } catch (IOException e) {
                 logger.error("An error occurred when writing to temp file", e);
 
@@ -81,18 +84,22 @@ public class SparkJobController {
                 minioClient.uploadObject(
                         UploadObjectArgs.builder()
                                 .bucket("testapp")
-                                .object(filename)
+                                .object("/tmp"+filename)
                                 .filename(filename)
                                 .build());
                 logger.info(
                         "'%s' is successfully uploaded as "
                                 + "object '%s' to bucket '%s'.\n", filename, "input.txt", "testapp");
+
+                //delete
+                File tempFile = new File("/tmp" + filename);
+                tempFile.delete();
             } catch (MinioException e) {
                 logger.error("Error occurred: " + e);
                 logger.error("HTTP trace: " + e.httpTrace());
             }
 
-            return "s3a://testapp/filename";
+            return "s3a://testapp/" + filename;
         }
         catch(Exception ex){
             logger.error("Error occurred: ",ex);
@@ -107,22 +114,20 @@ public class SparkJobController {
                 s3path
         };
 
-        String appResource = "/spark/examples/spark_job-1.0-SNAPSHOT.jar";
-        String mainClass = "ymlai87416.ds.spark.WordCount";
+        String appResource = "/jobs/job.jar";
+        String mainClass = "ymlai87416.sd.spark.WordCount";
+        String sparkHome = "/spark";
+        String jdbcJar = "/jobs/mysql-connector-java.jar";
 
         SparkLauncher spark = new SparkLauncher()
                 .setVerbose(true)
                 //.setJavaHome(javaHome)
-                //.setSparkHome(sparkHome)
+                .setSparkHome(sparkHome)
                 .setAppResource(appResource)    // "/my/app.jar"
                 .setMainClass(mainClass)        // "my.spark.app.Main"
                 .setMaster("spark://localhost:7077")
-                .setConf("spark.delta.logStore.class", "org.apache.spark.sql.delta.storage.S3SingleDriverLogStore")
-                .setConf("spark.hadoop.fs.s3a.endpoint", minioUrl)
-                .setConf("spark.hadoop.fs.s3a.access.key", minioAccessKey)
-                .setConf("spark.hadoop.fs.s3a.secret.key", minioSecretKey)
-                .setConf("spark.hadoop.fs.s3a.path.style.access", "true")
-                .setConf("spark.hadoop.fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem")
+                .addJar(jdbcJar)
+                .addJar(appResource)
                 .addAppArgs(appArgs);
 
         try {

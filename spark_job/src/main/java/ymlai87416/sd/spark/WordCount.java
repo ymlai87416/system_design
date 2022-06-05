@@ -5,12 +5,18 @@ import org.apache.log4j.Logger;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.VoidFunction;
-import org.apache.spark.sql.SparkSession;
+import org.apache.spark.sql.*;
 
+import org.apache.spark.sql.types.DataTypes;
+import org.apache.spark.sql.types.Metadata;
+import org.apache.spark.sql.types.StructField;
+import org.apache.spark.sql.types.StructType;
 import scala.Tuple2;
 
 import java.sql.*;
 import java.util.Arrays;
+import java.util.Properties;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 public class WordCount {
@@ -31,22 +37,63 @@ public class WordCount {
         SparkSession spark = SparkSession
                 .builder()
                 .appName("JavaWordCount")
+                .config("spark.delta.logStore.class", "org.apache.spark.sql.delta.storage.S3SingleDriverLogStore")
+                .config("spark.hadoop.fs.s3a.endpoint", "http://minio1:9000")
+                .config("spark.hadoop.fs.s3a.access.key", "minio")
+                .config("spark.hadoop.fs.s3a.secret.key", "minio123")
+                .config("spark.hadoop.fs.s3a.path.style.access", "true")
+                .config("spark.hadoop.fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem")
                 .getOrCreate();
+
+        UUID uuid = UUID.randomUUID();
 
         JavaRDD<String> inputFile = spark.read().textFile(infile).javaRDD();
         JavaRDD<String> wordsFromFile = inputFile.flatMap(s -> Arrays.asList(SPACE.split(s)).iterator());
 
         JavaPairRDD countData = wordsFromFile.mapToPair(t -> new Tuple2(t, 1)).reduceByKey((x, y) -> (int) x + (int) y);
 
+        StructType rfSchema = new StructType(new StructField[]{
+                new StructField("user_id", DataTypes.IntegerType, false, Metadata.empty()),
+                new StructField("word", DataTypes.StringType, false, Metadata.empty()),
+                new StructField("count", DataTypes.IntegerType, false, Metadata.empty()),
+                new StructField("batch_id", DataTypes.StringType, false, Metadata.empty())
+        });
+
+        Dataset<Row> df = spark.createDataset(JavaPairRDD.toRDD(countData),
+                Encoders.tuple(Encoders.STRING(),Encoders.INT())).toDF("word","count");
+        Dataset<Row> df2= df.withColumn("user_id",functions.lit(id));
+        Dataset<Row> df3= df2.withColumn("batch_id",functions.lit(uuid.toString()));
+
+        Properties connectionProperties = new Properties();
+        connectionProperties.put("driver", "com.mysql.jdbc.Driver");
+        connectionProperties.put("url", connectionString);
+        connectionProperties.put("user", "root");
+        connectionProperties.put("password", "password");
+
+        df3.write().mode(SaveMode.Append).jdbc(connectionString, "word_count_stage", connectionProperties);
+
+        Connection conn = null;
         try {
-            writeResultToDB(id, countData);
+            conn = DriverManager.getConnection(connectionString, user, pwd);
+            Statement stmt = conn.createStatement();
+            String sql1 = String.format(miniBatch, uuid.toString());
+            String sql2 = String.format(clearData, uuid.toString());
+            stmt.executeUpdate(sql1);
+            stmt.execute(sql2);
+            stmt.close();
         }
         catch(Exception ex){
             log.error("Error when writing file", ex);
         }
+        finally{
+            try {
+                if (conn != null && !conn.isClosed()) conn.close();
+            }
+            catch(Exception ex){ /* try my best to close */ };
+        }
     }
 
-    static String connectionString = "jdbc:mysql://db:3306/testapp&useUnicode=true&characterEncoding=UTF-8&useSSL=false";
+    static String connectionString = "jdbc:mysql://db:3306/testapp?useUnicode=true&characterEncoding=UTF-8&useSSL=false";
     static String prepareStatement = "INSERT INTO wordcount\n" +
             "  (id, word, count, createAt, updatedAt)\n" +
             "VALUES\n" +
@@ -57,36 +104,13 @@ public class WordCount {
     static String user = "root";
     static String pwd = "password";
 
-    private static void writeResultToDB(int id, JavaPairRDD resultRDD) throws SQLException{
-        final Connection conn= DriverManager.getConnection(connectionString, user, pwd);
-        try {
+    static String miniBatch = "INSERT INTO word_count (user_id, word, count)\n" +
+            "select user_id, word, count from word_count_stage where batch_id='%s'\n" +
+            "ON DUPLICATE KEY UPDATE\n" +
+            "  count     = word_count.count + VALUES(count),\n" +
+            "  updated_at = now()";
+    static String clearData = "delete from word_count_stage where batch_id='%s'";
 
-            resultRDD.foreach(new VoidFunction<Tuple2<String, Integer>>() {
-                @Override
-                public void call(Tuple2<String, Integer> o) throws Exception {
-                    String word = o._1();
-                    Integer newcount = o._2();
-                    long jsbh = System.currentTimeMillis();
-                    PreparedStatement psmt = conn.prepareStatement(prepareStatement);
-                    psmt.setInt(1, id);
-                    psmt.setString(2, word);
-                    psmt.setInt(3, newcount);
-                    psmt.setTimestamp(4, new Timestamp(jsbh));
-                    psmt.setTimestamp(4, new Timestamp(jsbh));
-                    psmt.executeUpdate();
-                    psmt.close();
-                }
-            });
-
-            conn.close();
-        }
-        catch(Exception ex){
-            log.error("Error when writing file", ex);
-        }
-        finally{
-            if(conn != null && !conn.isClosed()) conn.close();
-        }
-    }
 
     public static void main(String[] args) {
         if (args.length < 2) {

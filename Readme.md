@@ -63,4 +63,16 @@ DOCKER_BUILDKIT=1 docker build -t ymlai87416/sd-spark-worker:3.2.0-hadoop3.2 .
 docker cp target/spark_job-1.1-SNAPSHOT.jar spark-master:/jobs/job.jar
 
 java -cp "job.jar:/spark/jars/*" ymlai87416.sd.spark.SubmitJob
+
+spark-submit --master spark://spark-master:7077 \
+--conf spark.delta.logStore.class=org.apache.spark.sql.delta.storage.S3SingleDriverLogStore \
+--conf spark.hadoop.fs.s3a.endpoint=http://minio1:9000 \
+--conf spark.hadoop.fs.s3a.access.key=minio \
+--conf spark.hadoop.fs.s3a.secret.key=minio123 \
+--conf spark.hadoop.fs.s3a.path.style.access=true \
+--conf spark.hadoop.fs.s3a.impl=org.apache.hadoop.fs.s3a.S3AFileSystem \
+--jars /jobs/job.jar \
+--jars /jobs/mysql-connector-java-8.0.29.jar \
+--class ymlai87416.sd.spark.WordCount2 /jobs/job.jar 1 s3a://testapp/sample.txt
+
 ```
