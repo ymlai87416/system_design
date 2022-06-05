@@ -19,7 +19,7 @@ public class AppController {
         return readApi.getUserInfo(id);
     }
 
-    @RequestMapping("/users/{id}/messages")
+    @RequestMapping(method = RequestMethod.GET, value="/users/{id}/messages")
     public List<Message> getUserMessage(@PathVariable int id) {
         return readApi.getUserMessage(id);
     }
@@ -29,7 +29,7 @@ public class AppController {
         return readApi.getUserWordCount(id);
     }
 
-    @RequestMapping(method= RequestMethod.POST, value = "/users/{id}/wordcount", consumes = "text/plain")
+    @RequestMapping(method= RequestMethod.POST, value = "/users/{id}/messages", consumes = "text/plain")
     public void uploadMessage(@PathVariable int id, @RequestBody String postPayload) {
         writeApi.uploadMessage(id, postPayload);
     }

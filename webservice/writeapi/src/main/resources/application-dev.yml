@@ -18,3 +18,9 @@ spring:
     port: 6379
 server:
   port: 8281
+jpa:
+  url: jdbc:mysql://localhost:3306/testapp
+  username: root
+  password: password
+  dialect: org.hibernate.dialect.MySQL5Dialect
+  ddlAuto: none

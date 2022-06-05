@@ -76,3 +76,22 @@ spark-submit --master spark://spark-master:7077 \
 --class ymlai87416.sd.spark.WordCount2 /jobs/job.jar 1 s3a://testapp/sample.txt
 
 ```
+
+
+Task to do
+* find main interface
+* find jdbc on write-api\
+
+study on the disk image
+3 volumes expose: zk
+    /var/lib/zookeeper/data
+    /var/lib/zookeeper/log
+    /etc/zookeeper/secrets
+2 volumes expose: kafka
+    /va/lib/kafka/data
+    /etc/kafka/secrets
+1 spark master data => seems there is no expose volume, but the log file
+    the bde2000
+1 spark worker data => all log store at /sparks/log
+    but I don't store it for the time being...
+1 There is a submit image, I can change it

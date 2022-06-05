@@ -1,5 +1,6 @@
 package ymlai87416.sd.writeapi.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -18,11 +19,11 @@ import java.util.Properties;
 @EnableTransactionManagement
 public class PersistenceJPAConfig{
 
-    String url = "jdbc:mysql://localhost:3306/testapp";
-    String username = "root";
-    String password = "password";
-    String dialect = "org.hibernate.dialect.MySQL5Dialect";
-    String ddlAuto = "none";
+    @Value("${jpa.url}") String url;
+    @Value("${jpa.username}") String username;
+    @Value("${jpa.password}") String password;
+    @Value("${jpa.dialect}") String dialect;
+    @Value("${jpa.ddlAuto}") String ddlAuto;
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         LocalContainerEntityManagerFactoryBean em
