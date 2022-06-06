@@ -1,0 +1,20 @@
+spring:
+  kafka:
+    consumer:
+      bootstrap-servers: 127.0.0.1:29092
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      group-id: group_id
+      auto-offset-reset: earliest
+  cloud:
+    zookeeper:
+      connect-string: localhost:22181
+      discovery:
+        root: /testapp
+        enabled: true
+      dependencies:
+        sparkJobApi:
+          path: /notificationApi
+          loadBalancerType: ROUND_ROBIN
+          version: v1
+          required: false

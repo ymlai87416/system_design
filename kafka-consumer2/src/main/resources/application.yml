@@ -1,0 +1,12 @@
+spring:
+  profiles:
+    active: prod
+
+topic:
+  name:
+    consumer: testapp-sysnotification
+
+auto:
+  create:
+    topics:
+      enable: true
