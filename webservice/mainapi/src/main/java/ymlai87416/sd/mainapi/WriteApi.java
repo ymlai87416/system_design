@@ -14,4 +14,7 @@ public interface WriteApi {
     @RequestMapping(method= RequestMethod.POST, value = "/users/{id}/messages", consumes = "text/plain")
     void uploadMessage(@PathVariable int id, @RequestBody String postPayload);
 
+    @RequestMapping(method= RequestMethod.POST, value = "/users/new", consumes = "text/json")
+    User createUser(@RequestBody User newUser);
+
 }

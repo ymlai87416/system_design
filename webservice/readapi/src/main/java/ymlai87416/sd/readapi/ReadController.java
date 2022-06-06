@@ -48,4 +48,10 @@ public class ReadController {
         return List.of(wc1, wc2, wc3, wc4);*/
         return wordCountService.findByIdUserId(id);
     }
+
+    @RequestMapping("/users/q/{username}")
+    public User getUserInfoByName(@PathVariable String username){
+        return userService.findByName(username);
+    }
+
 }

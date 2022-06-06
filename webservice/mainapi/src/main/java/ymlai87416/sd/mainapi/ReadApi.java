@@ -17,4 +17,6 @@ public interface ReadApi {
     @RequestMapping("/users/{id}/wordcount")
     List<WordCount> getUserWordCount(@PathVariable int id);
 
+    @RequestMapping("/users/q/{username}")
+    User getUserInfoByName(@PathVariable String username);
 }

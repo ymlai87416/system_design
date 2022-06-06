@@ -2,7 +2,7 @@ package ymlai87416.sd.writeapi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ymlai87416.sd.dto.Message;
+import ymlai87416.sd.dto.*;
 import ymlai87416.sd.writeapi.service.*;
 
 import java.util.Date;
@@ -13,6 +13,9 @@ public class WriteController {
 
     @Autowired
     MessageService messageService;
+
+    @Autowired
+    UserService userService;
 
     private final WordCountProducer topicProducer;
 
@@ -31,4 +34,9 @@ public class WriteController {
         topicProducer.send(id+ ":" + postPayload);
     }
 
+
+    @RequestMapping(method= RequestMethod.POST, value = "/users/new", consumes = "text/json")
+    public User createUser(@RequestBody User newUser){
+        return userService.save(newUser);
+    }
 }

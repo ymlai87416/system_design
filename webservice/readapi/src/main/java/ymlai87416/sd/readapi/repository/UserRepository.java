@@ -8,4 +8,6 @@ import java.util.*;
 @Repository
 public interface UserRepository extends CrudRepository<User, Long> {
     User findById(int id);
+
+    User findByName(String name);
 }
