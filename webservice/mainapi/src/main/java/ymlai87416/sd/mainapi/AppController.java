@@ -3,6 +3,8 @@ package ymlai87416.sd.mainapi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ymlai87416.sd.dto.*;
+
+import java.security.Principal;
 import java.util.*;
 
 @RestController
@@ -35,4 +37,22 @@ public class AppController {
     }
 
 
+    @RequestMapping("/login")
+    public User login(Principal principal) {
+        String name = principal.getName();
+        User user = readApi.getUserInfoByName(name);
+        if(user == null){
+            //TODO: impl
+            User newUser = new User();
+            newUser = writeApi.createUser(newUser);
+            return newUser;
+        }
+        else
+            return user;
+    }
+
+    @RequestMapping("/logout")
+    public void logout(Principal principal) {
+        //TODO: impl
+    }
 }
