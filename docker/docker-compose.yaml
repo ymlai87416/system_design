@@ -129,7 +129,7 @@ services:
     ports:
       - "8080:8080"
       - "7077:7077"
-      - "8090:8090"
+      - "8091:8090"
     environment:
       - INIT_DAEMON_STEP=setup_spark
       - MINIO_URL=http://minio1:9000
@@ -152,7 +152,21 @@ services:
       - "8081:8081"
     environment:
       - "SPARK_MASTER=spark://spark-master:7077"
-      
+  spark-submit:
+    image: ymlai87416/sd-spark-submit:3.2.0-hadoop3.2
+    container_name: spark-submit
+    ports:
+      - "8090:8080"
+    environment:
+      - MINIO_URL=http://minio1:9000
+      - MINIO_ACCESS=minio
+      - MINIO_SECRET=minio123
+    links:
+      - minio1
+      - minio2
+      - minio3
+      - minio4
+      - db
   minio-mc:
     image: minio/mc:RELEASE.2020-04-19T19-17-53Z
     container_name: cas001-minio-mc
