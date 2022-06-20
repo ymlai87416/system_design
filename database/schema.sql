@@ -47,7 +47,7 @@ insert into word_count (user_id, word, count) values (1, 'apple', 12);
 insert into word_count (user_id, word, count) values (1, 'tree', 15);
 insert into word_count (user_id, word, count) values (1, 'cat', 20);
 
-insert into word_count_stage (user_id, word, count) values (1, 'tree', 1);
-insert into word_count_stage (user_id, word, count) values (1, 'tom', 2);
+insert into word_count_stage (user_id, word, count) values (1, 'tree', 1, 'TOM_TEST');
+insert into word_count_stage (user_id, word, count) values (1, 'tom', 2, 'TOM_TEST');
 
 

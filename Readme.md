@@ -1,97 +1,43 @@
-A simple environment to test out system design
+A simple environment to test out system design concept
 
 ## Story
 
 A simple system to allow user to login and save some random message.
 A summary dashboard to show the total word count of all message.
 
-
 ## Features
 
-Service recovery - zookeeper
+### Todo list
 
-    at least 3 for leader election
-    Webservice use this for service recovery
+- [x] Web API
+- [ ] Web
+- [x] Zookeeper
+- [x] Redis
+- [x] Kafka
+- [x] Minio
+- [x] Spark
 
-Webservice - Spring boot
+### Tech spec
 
-    Read API
-    Write API
-    Enhance to have rate limit function
+Deployed following cluster on Kubernetes for fun.
 
-To build, execute the followng command
-```
-DOCKER_BUILDKIT=1 docker build -t ymlai87416/sd-read-api:1.0 .
-DOCKER_BUILDKIT=1 docker build -t ymlai87416/sd-write-api:1.0 .
-DOCKER_BUILDKIT=1 docker build -t ymlai87416/sd-main-api:1.0 .
-```
-
-Database - MySQL
-
-    3 database sharding. have read replica.
-
-    Please check ./database for creating schema and populating data.
-
-Cache - Redis
-
-    3 cache sharding. have read replica.
-
-Web - React and spring boot
-
-    Nothing special, allow user to generate some random data.
-
-Message - Kafka
-
-    Able to process message
-    
-useful command
-```
-kafka-topics --create --topic testapp-wordcount --bootstrap-server kafka:9092
-kafka-console-producer --topic testapp-wordcount --bootstrap-server kafka:9092
-kafka-console-consumer --topic testapp-wordcount --from-beginning --bootstrap-server kafka:9092
-
-DOCKER_BUILDKIT=1 docker build -t ymlai87416/sd-kafka-consumer:1.0 .
-```
-
-Batch processing - Apache Spark and Minio
-
-useful command
-```
-DOCKER_BUILDKIT=1 docker build -t ymlai87416/sd-spark-master:3.2.0-hadoop3.2 .
-DOCKER_BUILDKIT=1 docker build -t ymlai87416/sd-spark-worker:3.2.0-hadoop3.2 .
-
-docker cp target/spark_job-1.1-SNAPSHOT.jar spark-master:/jobs/job.jar
-
-java -cp "job.jar:/spark/jars/*" ymlai87416.sd.spark.SubmitJob
-
-spark-submit --master spark://spark-master:7077 \
---conf spark.delta.logStore.class=org.apache.spark.sql.delta.storage.S3SingleDriverLogStore \
---conf spark.hadoop.fs.s3a.endpoint=http://minio1:9000 \
---conf spark.hadoop.fs.s3a.access.key=minio \
---conf spark.hadoop.fs.s3a.secret.key=minio123 \
---conf spark.hadoop.fs.s3a.path.style.access=true \
---conf spark.hadoop.fs.s3a.impl=org.apache.hadoop.fs.s3a.S3AFileSystem \
---jars /jobs/job.jar \
---jars /jobs/mysql-connector-java-8.0.29.jar \
---class ymlai87416.sd.spark.WordCount2 /jobs/job.jar 1 s3a://testapp/sample.txt
-
-```
+| Tech  | Spec  | Usage  |
+|---|---|---|
+| Redis  | cluster of 3 by [bitnami/redis-cluster](https://github.com/bitnami/charts/tree/master/bitnami/redis-cluster)  | As a cache cluster  |
+| Kafka  | cluster of 3 by [bitnami/kafka](https://github.com/bitnami/charts/tree/master/bitnami/kafka)  | As message queue  |
+| Minio  | cluster of 4 by [minio/minio](https://github.com/minio/charts)  | Store data for Spark to process.  |
+| Spark  | Use  [GoogleCloudPlatform/spark-on-k8s-operator](https://github.com/GoogleCloudPlatform/spark-on-k8s-operator) | Ask backend wordcount processing  |
+| Zookeeper  | cluster of 3 by [bitnami/zookeeper](https://github.com/bitnami/charts/tree/master/bitnami/zookeeper)  | Keep track of Kafka and spring boot discovery  |
+| MySQL  | A single host database  | As database  |
 
 
-Task to do
-* find main interface
-* find jdbc on write-api\
+### Related dockerhub repo
 
-study on the disk image
-3 volumes expose: zk
-    /var/lib/zookeeper/data
-    /var/lib/zookeeper/log
-    /etc/zookeeper/secrets
-2 volumes expose: kafka
-    /va/lib/kafka/data
-    /etc/kafka/secrets
-1 spark master data => seems there is no expose volume, but the log file
-    the bde2000
-1 spark worker data => all log store at /sparks/log
-    but I don't store it for the time being...
-1 There is a submit image, I can change it
+| docker hub  | function  | 
+|---|---|
+| [sd-read-api](https://hub.docker.com/repository/docker/ymlai87416/sd-read-api)  | Read API  |
+| [sd-write-api](https://hub.docker.com/repository/docker/ymlai87416/sd-write-api)  | Write API  |
+| [sd-main-api](https://hub.docker.com/repository/docker/ymlai87416/sd-main-api)  | Main API  |
+| [sd-wordcount-spark](https://hub.docker.com/repository/docker/ymlai87416/sd-wordcount-spark)  | Spark job  |
+| [sd-kafka-consumer](https://hub.docker.com/repository/docker/ymlai87416/sd-kafka-consumer)  | Kafka consumer  |
+| [sd-web](https://hub.docker.com/repository/docker/ymlai87416/sd-web)  | Web  |

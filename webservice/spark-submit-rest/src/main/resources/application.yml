@@ -1,9 +1,0 @@
-spring:
-  application:
-    name: sparkjob
-  profiles:
-    active: prod
-
-logging:
-  level:
-    org.apache.zookeeper.ClientCnxn: WARN

@@ -8,6 +8,7 @@ import java.security.Principal;
 import java.util.*;
 
 @RestController
+@RequestMapping("/api/v1")
 public class AppController {
 
     @Autowired

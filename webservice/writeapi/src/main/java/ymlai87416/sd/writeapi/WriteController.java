@@ -9,6 +9,7 @@ import java.util.Date;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/v1")
 public class WriteController {
 
     @Autowired

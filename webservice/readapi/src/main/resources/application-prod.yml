@@ -3,15 +3,17 @@ spring:
     name: readapi
   cloud:
     zookeeper:
-      connect-string: zookeeper:2181
+      connect-string: ${ZOOKEEPER_CONN_STR}
       discovery:
         enabled: true
         register: true
         root: /testapp
         prefer-ip-address: true
   redis:
-    host: redis
-    port: 6379
+    cluster:
+      nodes: ${REDIS_HOST}
+      max-redirects: 3
+    password: ${REDIS_PASSWORD}
 logging:
   level:
     org.apache.zookeeper.ClientCnxn: WARN
@@ -20,8 +22,8 @@ server:
   port: 8080
 
 jpa:
-  url: jdbc:mysql://db:3306/testapp
-  username: root
-  password: password
+  url: ${DB_URL}
+  username: ${DB_USER}
+  password: ${DB_PASSWORD}
   dialect: org.hibernate.dialect.MySQL5Dialect
   ddlAuto: none

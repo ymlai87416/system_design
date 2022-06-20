@@ -11,10 +11,10 @@ import java.util.List;
 @FeignClient(name="writeApi")
 public interface WriteApi {
 
-    @RequestMapping(method= RequestMethod.POST, value = "/users/{id}/messages", consumes = "text/plain")
+    @RequestMapping(method= RequestMethod.POST, value = "/api/v1/users/{id}/messages", consumes = "text/plain")
     void uploadMessage(@PathVariable int id, @RequestBody String postPayload);
 
-    @RequestMapping(method= RequestMethod.POST, value = "/users/new", consumes = "text/json")
+    @RequestMapping(method= RequestMethod.POST, value = "/api/v1/users/new", consumes = "text/json")
     User createUser(@RequestBody User newUser);
 
 }

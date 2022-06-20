@@ -8,15 +8,15 @@ import java.util.List;
 
 @FeignClient(name="readApi")
 public interface ReadApi {
-    @RequestMapping("/users/{id}")
+    @RequestMapping("/api/v1/users/{id}")
     User getUserInfo(@PathVariable int id);
 
-    @RequestMapping("/users/{id}/messages")
+    @RequestMapping("/api/v1/users/{id}/messages")
     List<Message> getUserMessage(@PathVariable int id);
 
-    @RequestMapping("/users/{id}/wordcount")
+    @RequestMapping("/api/v1/users/{id}/wordcount")
     List<WordCount> getUserWordCount(@PathVariable int id);
 
-    @RequestMapping("/users/q/{username}")
+    @RequestMapping("/api/v1/users/q/{username}")
     User getUserInfoByName(@PathVariable String username);
 }
