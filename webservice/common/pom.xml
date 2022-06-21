@@ -16,6 +16,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <log4j2-version>2.13.3</log4j2-version>
     <lombok.version>1.18.24</lombok.version>
+    <java.version>17</java.version>
   </properties>
 
   <dependencyManagement>

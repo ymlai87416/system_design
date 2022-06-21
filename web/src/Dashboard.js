@@ -12,7 +12,7 @@ function Dashboard() {
     const [wordcount, setWordCount] = useState([]);
     const [user, setUser] = useState("");
     const [idtoken, setIdtoken] = useState("");
-    const baseUrl = "http://localhost:8282/api/v1/"
+    const baseUrl = "https://sd.ymlai87416.com/api/v1/"
 
     React.useEffect(() => {
       const fetchData = initDashboard;

@@ -82,6 +82,7 @@ public class SecurityFilter  extends OncePerRequestFilter {
             user = readApi.getUserInfoByName(decodedToken.getUid());
             if(user == null){
                 user = new User(0, decodedToken.getUid(), decodedToken.getEmail(), "", new Date());
+                log.info("Create new user: " + decodedToken.getUid() + " "+ decodedToken.getEmail());
                 user = writeApi.createUser(user);
             }
         }

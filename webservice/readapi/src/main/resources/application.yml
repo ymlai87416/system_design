@@ -2,4 +2,4 @@ spring:
   application:
     name: mainapi
   profiles:
-    active: dev
+    active: prod

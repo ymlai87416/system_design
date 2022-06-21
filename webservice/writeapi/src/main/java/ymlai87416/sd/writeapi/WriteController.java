@@ -1,5 +1,6 @@
 package ymlai87416.sd.writeapi;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +12,7 @@ import java.util.Date;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
+@Slf4j
 public class WriteController {
 
     @Autowired
@@ -38,6 +40,7 @@ public class WriteController {
 
     @RequestMapping(method= RequestMethod.POST, value = "/users/new")
     public User createUser(@RequestBody User newUser){
+        log.info("Create new user " + newUser.getName() + " "+ newUser.getEmail());
         return userService.save(newUser);
     }
 }

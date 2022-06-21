@@ -25,9 +25,9 @@ public class FirebaseConfig {
     @Primary
     @Bean
     public FirebaseApp getfirebaseApp() throws IOException {
-        File file = ResourceUtils.getFile("classpath:serviceAccount.json");
-        FileInputStream serviceAccount = new FileInputStream(file);
-
+        //File file = ResourceUtils.getFile("classpath:serviceAccount.json");
+        //FileInputStream serviceAccount = new FileInputStream(file);
+        InputStream serviceAccount = getClass().getClassLoader().getResourceAsStream("serviceAccount.json");
         FirebaseOptions options = FirebaseOptions.builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount)).build();
         if (FirebaseApp.getApps().isEmpty()) {
