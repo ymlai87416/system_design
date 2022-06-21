@@ -35,7 +35,6 @@ public class WriteController {
         topicProducer.send(id+ ":" + postPayload);
     }
 
-
     @RequestMapping(method= RequestMethod.POST, value = "/users/new", consumes = "text/json")
     public User createUser(@RequestBody User newUser){
         return userService.save(newUser);

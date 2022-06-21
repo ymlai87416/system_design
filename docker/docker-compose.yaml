@@ -221,7 +221,9 @@ services:
       - spark-master
       - zookeeper
       - kafka
-
+  web:
+    image: ymlai87416/sd-web:1.0
+    container_name: web
 
 ## By default this config uses default local driver,
 ## For custom volumes replace with volume driver configuration.
