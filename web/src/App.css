@@ -24,6 +24,7 @@
   color: white;
 }
 
+
 .App-link {
   color: #61dafb;
 }
@@ -35,4 +36,29 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+.flex-parent-element {
+  display: flex;
+  width: 90%;
+}
+
+.flex-child-element {
+  flex: 1;
+  border: 2px solid green;
+  margin: 10px;
+}
+
+.flex-child-element:first-child {
+  margin-right: 20px;
+  border: 2px solid blueviolet;
+  flex: 3;
+}
+
+button.logout {
+  width: 400px;
+  height: 100px;
+  color: white;
+  font-size: 30px;
+  background-color: #ffbd2e;
 }

@@ -1,6 +1,7 @@
 package ymlai87416.sd.writeapi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import ymlai87416.sd.dto.*;
 import ymlai87416.sd.writeapi.service.*;
@@ -35,7 +36,7 @@ public class WriteController {
         topicProducer.send(id+ ":" + postPayload);
     }
 
-    @RequestMapping(method= RequestMethod.POST, value = "/users/new", consumes = "text/json")
+    @RequestMapping(method= RequestMethod.POST, value = "/users/new")
     public User createUser(@RequestBody User newUser){
         return userService.save(newUser);
     }

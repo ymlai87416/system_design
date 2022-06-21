@@ -1,0 +1,31 @@
+ul.wordcount {
+  columns: 4;
+  -webkit-columns: 4;
+  -moz-columns: 4;
+}
+
+li.message {
+  text-align: left;
+}
+
+.input__field {
+  position: relative;
+  
+  box-sizing: border-box;
+  display: inline;
+  width: 80%;
+  height: 80px;
+  border: 1px solid red;
+  padding: calc(var(--size-bezel) * 1.5) var(--size-bezel);
+  color: black;
+  background: white;
+  border-radius: var(--size-radius);
+  margin-right: 10px;
+  word-wrap: break-word;
+  word-break: break-all;
+}
+
+
+textarea{
+  font-size: 14px;
+}

@@ -1,118 +1,142 @@
-import React from "react";
+import React, {useState} from "react";
 import { auth, provider } from "./firebase";
 import "./Dashboard.css";
-import { signInWithPopup } from "firebase/auth";
 import { useForm } from "react-hook-form";
+import axios from 'axios';
+import { useAuthState } from "react-firebase-hooks/auth";
 
-function Login() {
-    const [user, idToken] = useAuthState(auth);
-    const { register, handleSubmit } = useForm();
+
+function Dashboard() {
+    const { register, handleSubmit, formState: {errors} } = useForm();
     const [message, setMessage] = useState([]);
     const [wordcount, setWordCount] = useState([]);
+    const [user, setUser] = useState("");
+    const [idtoken, setIdtoken] = useState("");
+    const baseUrl = "http://localhost:8282/api/v1/"
 
-    React.useEffect(() => initDashboard(), [])
+    React.useEffect(() => {
+      const fetchData = initDashboard;
+      fetchData().catch(console.error);
 
-    const signOut = (e) => {
-      e.preventDefault();
-      auth.signOut();
-    };
+    }, [])
 
-    const initDashboard = (e) =>{
-        const promise1 = new Promise((resolve, reject) => { resolve(getMessage()); });
-        const promise2 = new Promise((resolve, reject) => { resolve(getDashboard()); });
 
-        Promise.all([promise1, promise2]).then((values) => {
-            setMessage(values[0]);
-            setWordCount(values[0]);
-        });
+    const initDashboard = async () =>{
+      const token = await auth.currentUser.getIdToken();
+      setIdtoken(token);
+      const user = await getUser(token);
+      if(user == null) {
+        console.log("user empty"); 
+        return;
+      }
+      setUser(user.data);
+
+      const userId = user.data.id;
+
+      const messageF = getMessage(token, userId);
+      const wordcountF = getWordCount(token, userId);
+
+      const messageR = await messageF
+      setMessage(messageR.data)
+      const wordcountR = await wordcountF
+      setWordCount(wordcountR.data)
+      
+    }
+
+    const getUser = (idToken) =>{
+      const res = axios({
+        url: baseUrl+"user",
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + idToken,
+        },
+      })
+      
+      return res;
     }
   
-    const getMessage = (e) =>{
-        axios({
-            url: "http://localhost/api/message",
-            method: "GET",
-            headers: {
-              Authorization: "Bearer " + idToken,
-            },
-          })
-            .then((res) => {
-              setData(res.data);
-              setStatus(res.status);
-            })
-            .catch((error) => {
-              if (error.response) {
-                setData(error.response.data.message);
-                setStatus(error.response.data.code);
-              }
-            });
+    const getMessage = (idToken, userid) =>{
+      const message = axios({
+          url: baseUrl+"user/" + userid + "/messages",
+          method: "GET",
+          headers: {
+            Authorization: "Bearer " + idToken,
+          },
+        })
+        
+        return message
+    }
+
+    const onSubmit = (data) => {
+      console.log(data);
+      sendMessage(idtoken, user.id, data.inputText)
+        .then(() => console.log("Completed"))
     }
   
-    const sendMessage = (e) => {
-        axios({
-            url: process.env.NEXT_PUBLIC_MIDDLEWARE_URL + url,
-            method: "GET",
-            headers: {
-              Authorization: "Bearer " + idToken,
-            },
-          })
-            .then((res) => {
-              setData(res.data);
-              setStatus(res.status);
-            })
-            .catch((error) => {
-              if (error.response) {
-                setData(error.response.data.message);
-                setStatus(error.response.data.code);
-              }
-            });
+    const sendMessage = (idToken, userid, text) => {
+      const result = axios({
+        url: baseUrl+"user/" + userid + "/messages",
+          method: "POST",
+          headers: {
+            Authorization: "Bearer " + idToken,
+            'Content-Type' : "text/plain",
+          },
+          data: text,
+        })
+
+        return result
     }
     
-    const getDashboard = (e) =>{
-        fetch("https://api.example.com/items")
-        .then(res => res.json())
-        .then(
-            (result) => {
-                setMessage(result);
-            },
-            (error) => { console.log("error getting message.")}
-        )
+    const getWordCount = (idToken, userid) =>{
+      const result = axios({
+        url: baseUrl+"user/" + userid + "/wordcount",
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + idToken,
+        },
+      })
+      
+      return result
     }
-  
+
+  const messageList = message.map( (v) => {
+      return <li  className="message" key={v.id}> 
+        {v.body}
+      </li>
+      })
+
+  const wordCountList=  wordcount.sort((a, b)=> b.count- a.count).slice(0, 20).map( (v) => {
+    return <li key={v.id.word}> 
+        {v.id.word + "-" + v.count}
+      </li>
+      })
+    
   return (
     <div className="dashboard">
         
-        <form onSubmit={handleSubmit(sendMessage)}>
+        <form onSubmit={handleSubmit(onSubmit)}>
             {/* include validation with required or other standard HTML validation rules */}
-            <input {...register("exampleRequired", { required: true })} />
+            <textarea className="input__field" {...register("inputText", { required: true })} />
             {/* errors will return when field validation fails  */}
-            {errors.exampleRequired && <span>This field is required</span>}
+            {errors.inputText && <span>This field is required</span>}
 
             <input type="submit" />
         </form>
 
         <div>
-            {
-                wordcount.map( (v, i) => {
-                <div key={i}> 
-                <input value={v} onChange={e => setInput(i, e.target.value)} />
-                </div>
-                })
-            }
+          <h2>Top 20 words</h2>
+          <ul class="wordcount">
+            {wordCountList}
+          </ul>
         </div>
 
         <div >
-            {
-                message.map( (v, i) => {
-                <div key={i}> 
-                <input value={v} onChange={e => setInput(i, e.target.value)} />
-                </div>
-                })
-            }
+            <h2>List of message</h2>
+            <ul>{messageList}</ul>
         </div>
     </div>
   );
 }
-
-function 
+ 
 
 export default Dashboard;

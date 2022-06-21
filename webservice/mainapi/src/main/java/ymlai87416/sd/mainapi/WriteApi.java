@@ -1,6 +1,7 @@
 package ymlai87416.sd.mainapi;
 
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,7 +15,7 @@ public interface WriteApi {
     @RequestMapping(method= RequestMethod.POST, value = "/api/v1/users/{id}/messages", consumes = "text/plain")
     void uploadMessage(@PathVariable int id, @RequestBody String postPayload);
 
-    @RequestMapping(method= RequestMethod.POST, value = "/api/v1/users/new", consumes = "text/json")
-    User createUser(@RequestBody User newUser);
+    @RequestMapping(method= RequestMethod.POST, value = "/api/v1/users/new", consumes = "application/json")
+    User createUser( User newUser);
 
 }
