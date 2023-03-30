@@ -1,0 +1,27 @@
+spring:
+  cloud:
+    zookeeper:
+      connect-string: localhost:22181
+      discovery:
+        enabled: true
+        register: true
+        root: /testapp
+        prefer-ip-address: true
+      dependencies:
+        readApi:
+          path: /readapi
+          loadBalancerType: ROUND_ROBIN
+          version: v1
+          required: true
+        writeApi:
+          path: /writeapi
+          loadBalancerType: ROUND_ROBIN
+          version: v1
+          required: true
+
+logging:
+  level:
+    org.apache.zookeeper.ClientCnxn: WARN
+
+server:
+  port: 8380

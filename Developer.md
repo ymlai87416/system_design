@@ -63,3 +63,19 @@ DOCKER_BUILDKIT=1 docker build -t ymlai87416/sd-wordcount-spark:1.0 .
 docker push ymlai87416/sd-wordcount-spark:1.0
 
 ```
+
+### Notification - SockJS
+
+cluster: https://stackoverflow.com/questions/32861645/spring-websocket-sendtouser-from-a-cluster-does-not-work-from-backup-server
+
+According to research, make use of fcm to do the notification.
+Have a function to let user register token and we send the token to this client.
+
+```bash
+
+```
+
+## Spark history server
+https://chowdera.com/2021/10/20211023053725807Q.html
+https://github.com/GoogleCloudPlatform/spark-on-k8s-operator/issues/1295
+https://stackoverflow.com/questions/51798927/spark-ui-history-server-on-kubernetes

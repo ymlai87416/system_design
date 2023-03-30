@@ -21,6 +21,9 @@ public class WriteController {
     @Autowired
     UserService userService;
 
+    @Autowired
+    FCMNotificationService fcmNotificationService;
+
     private final WordCountProducer topicProducer;
 
     @RequestMapping(method= RequestMethod.POST, value = "/users/{id}/messages", consumes = "text/plain")
@@ -42,5 +45,11 @@ public class WriteController {
     public User createUser(@RequestBody User newUser){
         log.info("Create new user " + newUser.getName() + " "+ newUser.getEmail());
         return userService.save(newUser);
+    }
+
+    @RequestMapping(method= RequestMethod.POST, value = "/fcm/token/")
+    public FCMNotification saveFCMNotification(@RequestBody FCMNotification newToken){
+        log.info("Update notification token for " + newToken.getId().getUserId() + " "+ newToken.getId().getType());
+        return fcmNotificationService.save(newToken);
     }
 }

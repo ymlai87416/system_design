@@ -1,4 +1,5 @@
-package ymlai87416.sd.mainapi.config;
+package ymlai87416.sd.notification.config;
+
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
@@ -32,5 +33,9 @@ public class FirebaseConfig {
         return FirebaseAuth.getInstance(getfirebaseApp());
     }
 
-}
+    @Bean
+    public FirebaseAuth getAuth() throws IOException {
+        return FirebaseAuth.getInstance(getfirebaseApp());
+    }
 
+}

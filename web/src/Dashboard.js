@@ -1,10 +1,11 @@
 import React, {useState} from "react";
-import { auth, provider } from "./firebase";
+import { auth, provider, getToken2, onMessageListener} from "./firebase";
 import "./Dashboard.css";
 import { useForm } from "react-hook-form";
 import axios from 'axios';
 import { useAuthState } from "react-firebase-hooks/auth";
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function Dashboard() {
     const { register, handleSubmit, formState: {errors} } = useForm();
@@ -12,6 +13,10 @@ function Dashboard() {
     const [wordcount, setWordCount] = useState([]);
     const [user, setUser] = useState("");
     const [idtoken, setIdtoken] = useState("");
+
+    //messaging
+    const [isTokenFound, setTokenFound] = useState(false);
+
     const baseUrl = "https://sd.ymlai87416.com/api/v1/"
 
     React.useEffect(() => {
@@ -30,6 +35,13 @@ function Dashboard() {
         return;
       }
       setUser(user.data);
+
+      getToken2(setTokenFound);
+
+      onMessageListener().then(payload => {
+        notify( payload.notification.title + " " + payload.notification.body);
+        console.log(payload);
+      }).catch(err => console.log('failed: ', err));
 
       const userId = user.data.id;
 
@@ -54,7 +66,7 @@ function Dashboard() {
       
       return res;
     }
-  
+
     const getMessage = (idToken, userid) =>{
       const message = axios({
           url: baseUrl+"user/" + userid + "/messages",
@@ -110,30 +122,50 @@ function Dashboard() {
         {v.id.word + "-" + v.count}
       </li>
       })
+  
+  const notify = (message) => toast(message, {
+    position: "top-right",
+    autoClose: 5000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    });
     
   return (
     <div className="dashboard">
+      <ToastContainer 
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover/>
         
-        <form onSubmit={handleSubmit(onSubmit)}>
-            {/* include validation with required or other standard HTML validation rules */}
-            <textarea className="input__field" {...register("inputText", { required: true })} />
-            {/* errors will return when field validation fails  */}
-            {errors.inputText && <span>This field is required</span>}
+      <form onSubmit={handleSubmit(onSubmit)}>
+          {/* include validation with required or other standard HTML validation rules */}
+          <textarea className="input__field" {...register("inputText", { required: true })} />
+          {/* errors will return when field validation fails  */}
+          {errors.inputText && <span>This field is required</span>}
 
-            <input type="submit" />
-        </form>
+          <input type="submit" />
+      </form>
 
-        <div>
-          <h2>Top 20 words</h2>
-          <ul class="wordcount">
-            {wordCountList}
-          </ul>
-        </div>
+      <div>
+        <h2>Top 20 words</h2>
+        <ul class="wordcount">
+          {wordCountList}
+        </ul>
+      </div>
 
-        <div >
-            <h2>List of message</h2>
-            <ul>{messageList}</ul>
-        </div>
+      <div >
+          <h2>List of message</h2>
+          <ul>{messageList}</ul>
+      </div>
     </div>
   );
 }

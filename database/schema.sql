@@ -36,6 +36,16 @@ create table word_count_stage(
   batch_id varchar(255) not null
 )
 
+create table fcm_notification(
+  user_id integer,
+  type  varchar(20) not null,
+  fcm_token varchar(255) not null,
+  created_at timestamp default now(),
+  updated_at timestamp default now(),
+  foreign key (user_id) references user (id), 
+  primary key (user_id, word)
+)
+
 insert into user (name, email, password) values ( "Test", "test@123.com", "password");
 
 insert into message ( body, user_id) values ("Preserved defective offending he daughters on or. Rejoiced prospect yet material servants out answered men admitted. Sportsmen certainty prevailed suspected am as. Add stairs admire all answer the nearer yet length. Advantages prosperous remarkably my inhabiting so reasonably be if. Too any appearance announcing impossible one. Out mrs means heart ham tears shall power every.", 1);

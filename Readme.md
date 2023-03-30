@@ -10,12 +10,13 @@ A summary dashboard to show the total word count of all message.
 ### Todo list
 
 - [x] Web API
-- [ ] Web
+- [x] Web
 - [x] Zookeeper
 - [x] Redis
 - [x] Kafka
 - [x] Minio
 - [x] Spark
+- [ ] Notification and STOMP
 
 ### Tech spec
 
